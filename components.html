@@ -1,0 +1,62 @@
+<!-- AI INSIGHT MODAL / PANEL -->
+<div class="ai-panel-overlay" id="aiPanelOverlay" onclick="closeAiPanel()"></div>
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-panel-header">
+    <div class="header-title">
+      <span class="ai-bot-icon">🤖</span>
+      <h2>Gemini AI Insights</h2>
+    </div>
+    <button class="close-btn" onclick="closeAiPanel()">
+      <i data-lucide="x"></i>
+    </button>
+  </div>
+  
+  <div class="ai-panel-body">
+    <div class="target-visualization">
+      <span class="visualization-tag" id="aiTagSection">Overview</span>
+      <h3 id="aiTargetTitle">Transaction Trend Analysis</h3>
+      <p class="visualization-type">Visualization: <span id="aiTargetType">Line Chart</span></p>
+    </div>
+
+    <div class="ai-status" id="aiLoading">
+      <div class="spinner"></div>
+      <p>Gemini AI is analyzing financial datasets and trends...</p>
+    </div>
+
+    <div class="ai-error hidden" id="aiError">
+      <i data-lucide="alert-triangle"></i>
+      <p id="aiErrorMsg">An error occurred while connecting to Gemini AI.</p>
+    </div>
+
+    <div class="ai-response-content mt-4" id="aiContent">
+      <div class="insight-block">
+        <h4 class="block-title"><i data-lucide="file-text"></i> Summary</h4>
+        <p id="aiSummaryText">This trend shows active operational allocations with a peak transaction volume in March, signaling elevated project setup disbursements.</p>
+      </div>
+
+      <div class="insight-block">
+        <h4 class="block-title"><i data-lucide="search"></i> Key Findings</h4>
+        <ul id="aiFindingsList">
+          <li>March had the highest number of transactions.</li>
+          <li>S&T Transfer division contributed the largest amount processed.</li>
+        </ul>
+      </div>
+
+      <div class="insight-block">
+        <h4 class="block-title"><i data-lucide="trending-up"></i> Trend Analysis</h4>
+        <p id="aiTrendsText">Consistent upward trajectory observed from January through Q2, highlighting progressive community setup project mobilization.</p>
+      </div>
+
+      <div class="insight-block">
+        <h4 class="block-title"><i data-lucide="briefcase"></i> Management Interpretation</h4>
+        <p id="aiInterpretationText">Budget allocations are being processed within target service level agreements. Cashier completed rate is high, though attention is recommended for delayed payments in Q2.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="ai-panel-footer">
+    <button class="btn-primary w-full" onclick="regenerateAiInsight()">
+      <i data-lucide="sparkles"></i> Re-Analyze with Gemini
+    </button>
+  </div>
+</div>

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTra - Finance Tracking and Analytics</title>
+    <!-- DM Sans and Inter Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons (via CDN for clean vectors) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <?!= include('stylesheet'); ?>
+  </head>
+  <body>
+    <?!= include('sidebar'); ?>
+    <!-- MAIN MAIN CONTENT CONTAINER -->
+    <div class="main-content" id="mainContent">
+      
+      <!-- TOP HEADER (Global for all views) -->
+      <header class="top-header">
+        <div class="header-left">
+          <h1 id="pageTitle">Overview</h1>
+          <div class="timestamp">
+            <span id="lastUpdatedTime">July 7, 2026 | 10:30 AM</span>
+          </div>
+        </div>
+        
+        <div class="header-right">
+          <!-- Filters System -->
+          <div class="filter-group">
+            <select id="filterPeriod" class="filter-select">
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="yearly" selected>Yearly</option>
+              <option value="custom">Custom Date Range</option>
+            </select>
+            
+            <select id="filterDetail" class="filter-select">
+              <!-- Dynamically populated or manually defined -->
+              <option value="2026">2026</option>
+            </select>
+            
+            <div id="customDateContainer" class="custom-date-container hidden">
+              <input type="date" id="customStart" class="date-input">
+              <span class="date-sep">to</span>
+              <input type="date" id="customEnd" class="date-input">
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="header-actions">
+            <div class="dropdown-wrapper">
+              <button class="btn-action" id="exportBtn" title="Export Analytics">
+                <i data-lucide="download"></i>
+                <span>Export</span>
+              </button>
+              <div class="dropdown-menu" id="exportDropdown">
+                <a href="#" onclick="exportData('PDF')"><i data-lucide="file-type-2"></i> PDF Report</a>
+                <a href="#" onclick="exportData('CSV')"><i data-lucide="file-spreadsheet"></i> CSV Spreadsheet</a>
+                <a href="#" onclick="exportData('Excel')"><i data-lucide="file-spreadsheet"></i> Excel Workbook</a>
+                <a href="#" onclick="exportData('Docs')"><i data-lucide="file-text"></i> Google Docs</a>
+              </div>
+            </div>
+            
+            <button class="btn-action" id="printBtn" title="Print Report" onclick="window.print()">
+              <i data-lucide="printer"></i>
+              <span>Print</span>
+            </button>
+            
+            <div class="notification-wrapper">
+              <button class="btn-action icon-only" id="notificationBtn">
+                <i data-lucide="bell"></i>
+                <span class="notification-badge" id="badgeCount">3</span>
+              </button>
+              <div class="notification-panel" id="notificationPanel">
+                <div class="notif-header">
+                  <h3>Notifications</h3>
+                  <button class="notif-clear" onclick="clearNotifications()">Clear All</button>
+                </div>
+                <div class="notif-list" id="notifList">
+                  <div class="notif-item unread">
+                    <span class="notif-bullet warning"></span>
+                    <div class="notif-body">
+                      <p>5 pending obligation requests in S&T division.</p>
+                      <span class="notif-time">10 mins ago</span>
+                    </div>
+                  </div>
+                  <div class="notif-item unread">
+                    <span class="notif-bullet success"></span>
+                    <div class="notif-body">
+                      <p>3 disbursement vouchers completed and ready.</p>
+                      <span class="notif-time">1 hour ago</span>
+                    </div>
+                  </div>
+                  <div class="notif-item unread">
+                    <span class="notif-bullet error"></span>
+                    <div class="notif-body">
+                      <p>Delayed payments list compiled for Q2 review.</p>
+                      <span class="notif-time">Yesterday</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT SECTIONS -->
+      <main class="content-body">
+        
+        <!-- SECTION: OVERVIEW -->
+        <section id="overview-section" class="dashboard-section active">
+          <!-- KPI Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card" onclick="openMetricInsight('Total Transactions', 36, 'Count', 'Overview')">
+              <div class="kpi-info">
+                <h3>Total Transactions</h3>
+                <p class="kpi-value" id="ovTotalTx">36</p>
+                <span class="kpi-trend up"><i data-lucide="trending-up"></i> +12% from last quarter</span>
+              </div>
+              <div class="kpi-icon blue"><i data-lucide="activity"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Total Amount Processed', '₱2,102,760.00', 'PHP', 'Overview')">
+              <div class="kpi-info">
+                <h3>Total Amount Processed</h3>
+                <p class="kpi-value" id="ovTotalAmount">₱2,102,760.00</p>
+                <span class="kpi-trend up"><i data-lucide="trending-up"></i> +8.4% allocation utilization</span>
+              </div>
+              <div class="kpi-icon navy"><i data-lucide="badge-dollar-sign"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Monthly Average Transactions', '₱350,460.00', 'PHP Average', 'Overview')">
+              <div class="kpi-info">
+                <h3>Monthly Average</h3>
+                <p class="kpi-value" id="ovMonthlyAverage">₱350,460.00</p>
+                <span class="kpi-trend neutral"><i data-lucide="minus"></i> Steady monthly cycle</span>
+              </div>
+              <div class="kpi-icon"><i data-lucide="calendar"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Quarterly Average Volume', '₱1,051,380.00', 'PHP Volume', 'Overview')">
+              <div class="kpi-info">
+                <h3>Quarterly Volume</h3>
+                <p class="kpi-value" id="ovQuarterlyAverage">₱1,051,380.00</p>
+                <span class="kpi-trend up"><i data-lucide="trending-up"></i> Accelerated Q2 release</span>
+              </div>
+              <div class="kpi-icon"><i data-lucide="bar-chart-3"></i></div>
+            </div>
+          </div>
+          
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="chart-card" onclick="openChartInsight('ovTrendChart', 'Transaction Trend (Monthly)', 'Line', 'Overview')">
+              <div class="chart-header">
+                <h3>Transaction Trend</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="ovTrendChart"></canvas>
+              </div>
+            </div>
+            
+            <div class="chart-card" onclick="openChartInsight('ovDistributionChart', 'Transaction Distribution by Section', 'Donut', 'Overview')">
+              <div class="chart-header">
+                <h3>Transaction Distribution by Section</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="ovDistributionChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card full-width" onclick="openChartInsight('ovAmountChart', 'Amount Processed by Section', 'Bar', 'Overview')">
+              <div class="chart-header">
+                <h3>Amount Processed by Section (Comparison)</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="ovAmountChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: BUDGET -->
+        <section id="budget-section" class="dashboard-section">
+          <!-- KPI Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card" onclick="openMetricInsight('Total Obligation Requests', 12, 'Count', 'Budget')">
+              <div class="kpi-info">
+                <h3>Total Obligation Requests</h3>
+                <p class="kpi-value" id="bgTotalRequests">12</p>
+                <span class="kpi-trend up"><i data-lucide="check-circle-2"></i> All documents received</span>
+              </div>
+              <div class="kpi-icon blue"><i data-lucide="file-spreadsheet"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Total Obligated Amount', '₱2,471,000.00', 'PHP', 'Budget')">
+              <div class="kpi-info">
+                <h3>Total Obligation Amount</h3>
+                <p class="kpi-value" id="bgTotalAmount">₱2,471,000.00</p>
+                <span class="kpi-trend up"><i data-lucide="trending-up"></i> +15% allotment utilized</span>
+              </div>
+              <div class="kpi-icon navy"><i data-lucide="coins"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Average Transaction Amount', '₱205,916.67', 'PHP Average', 'Budget')">
+              <div class="kpi-info">
+                <h3>Average Transaction Amount</h3>
+                <p class="kpi-value" id="bgAverageAmount">₱205,916.67</p>
+                <span class="kpi-trend neutral"><i data-lucide="minus"></i> High value SETUP/CEST awards</span>
+              </div>
+              <div class="kpi-icon"><i data-lucide="calculator"></i></div>
+            </div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="chart-card" onclick="openChartInsight('bgTrendChart', 'Obligation Request Trend', 'Line', 'Budget')">
+              <div class="chart-header">
+                <h3>Obligation Request Trend</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="bgTrendChart"></canvas>
+              </div>
+            </div>
+            
+            <div class="chart-card" onclick="openChartInsight('bgAllotmentChart', 'Obligation Amount by Allotment Class', 'Donut', 'Budget')">
+              <div class="chart-header">
+                <h3>Obligation Amount by Allotment Class</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="bgAllotmentChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card full-width" onclick="openChartInsight('bgRespCenterChart', 'Obligation Amount by Responsibility Center', 'Bar', 'Budget')">
+              <div class="chart-header">
+                <h3>Obligation Amount by Responsibility Center</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="bgRespCenterChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary Table -->
+          <div class="table-card mt-6">
+            <div class="table-card-header">
+              <h3>Obligation Request Summary</h3>
+              <div class="table-actions">
+                <input type="text" id="budgetSearch" placeholder="Search Payee/Particulars..." class="table-search">
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ref No.</th>
+                    <th>Date Received</th>
+                    <th>Serial No.</th>
+                    <th>Allotment Class</th>
+                    <th>Payee</th>
+                    <th>Amount</th>
+                    <th>Status / Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="budgetTableBody">
+                  <!-- JS populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: ACCOUNTING -->
+        <section id="accounting-section" class="dashboard-section">
+          <!-- KPI Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card" onclick="openMetricInsight('Total Disbursement Vouchers', 12, 'Count', 'Accounting')">
+              <div class="kpi-info">
+                <h3>Total Disbursement Vouchers</h3>
+                <p class="kpi-value" id="acTotalVouchers">12</p>
+                <span class="kpi-trend up"><i data-lucide="check"></i> 100% vouchers coded</span>
+              </div>
+              <div class="kpi-icon blue"><i data-lucide="clipboard-list"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Total Gross Amount', '₱2,104,000.00', 'PHP', 'Accounting')">
+              <div class="kpi-info">
+                <h3>Total Gross Amount</h3>
+                <p class="kpi-value" id="acGrossAmount">₱2,104,000.00</p>
+                <span class="kpi-trend up"><i data-lucide="trending-up"></i> Base disbursement</span>
+              </div>
+              <div class="kpi-icon navy"><i data-lucide="dollar-sign"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Total Net Amount Released', '₱1,942,010.00', 'PHP', 'Accounting')">
+              <div class="kpi-info">
+                <h3>Total Net Amount</h3>
+                <p class="kpi-value" id="acNetAmount">₱1,942,010.00</p>
+                <span class="kpi-trend up"><i data-lucide="check-circle"></i> Deductions processed securely</span>
+              </div>
+              <div class="kpi-icon green"><i data-lucide="shield-check"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Total Tax and Deductions', '₱161,990.00', 'PHP', 'Accounting')">
+              <div class="kpi-info">
+                <h3>Total Deductions</h3>
+                <p class="kpi-value" id="acDeductions">₱161,990.00</p>
+                <span class="kpi-trend down"><i data-lucide="trending-down"></i> Breakdown available</span>
+              </div>
+              <div class="kpi-icon"><i data-lucide="percent"></i></div>
+            </div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="chart-card" onclick="openChartInsight('acTrendChart', 'Monthly Disbursement Trend', 'Line', 'Accounting')">
+              <div class="chart-header">
+                <h3>Disbursement Trend</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="acTrendChart"></canvas>
+              </div>
+            </div>
+            
+            <div class="chart-card" onclick="openChartInsight('acDeductionChart', 'Deduction Breakdown', 'Donut', 'Accounting')">
+              <div class="chart-header">
+                <h3>Deduction Breakdown</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="acDeductionChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card" onclick="openChartInsight('acGrossNetChart', 'Gross vs Net Amount', 'Bar', 'Accounting')">
+              <div class="chart-header">
+                <h3>Gross vs Net Amount Comparison</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="acGrossNetChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card" onclick="openChartInsight('acTopPayeesChart', 'Top Payees by Amount', 'Bar', 'Accounting')">
+              <div class="chart-header">
+                <h3>Top Payees by Amount</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="acTopPayeesChart"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Summary Table -->
+          <div class="table-card mt-6">
+            <div class="table-card-header">
+              <h3>Disbursement Ledger</h3>
+              <div class="table-actions">
+                <input type="text" id="accountingSearch" placeholder="Search Payee/DV No..." class="table-search">
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>DV No.</th>
+                    <th>Date Received</th>
+                    <th>Payee</th>
+                    <th>Particulars</th>
+                    <th>Gross Amount</th>
+                    <th>Deductions</th>
+                    <th>Net Amount</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="accountingTableBody">
+                  <!-- JS populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: CASHIER -->
+        <section id="cashier-section" class="dashboard-section">
+          <!-- KPI Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card" onclick="openMetricInsight('Total Payments Released', 12, 'Count', 'Cashier')">
+              <div class="kpi-info">
+                <h3>Total Payments Released</h3>
+                <p class="kpi-value" id="csTotalPayments">12</p>
+                <span class="kpi-trend up"><i data-lucide="check"></i> 100% check transactions traced</span>
+              </div>
+              <div class="kpi-icon blue"><i data-lucide="banknote"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Total Released Amount', '₱2,102,760.00', 'PHP', 'Cashier')">
+              <div class="kpi-info">
+                <h3>Total Payment Amount</h3>
+                <p class="kpi-value" id="csTotalAmount">₱2,102,760.00</p>
+                <span class="kpi-trend up"><i data-lucide="trending-up"></i> Disbursed through LDDAP</span>
+              </div>
+              <div class="kpi-icon navy"><i data-lucide="wallet"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Completed Payments', 9, 'Count', 'Cashier')">
+              <div class="kpi-info">
+                <h3>Completed Payments</h3>
+                <p class="kpi-value text-green-600" id="csCompleted">9</p>
+                <span class="kpi-trend up"><i data-lucide="trending-up"></i> Signed and cleared checks</span>
+              </div>
+              <div class="kpi-icon green"><i data-lucide="check-circle"></i></div>
+            </div>
+            <div class="kpi-card" onclick="openMetricInsight('Pending and Delayed Payments', 3, 'Count', 'Cashier')">
+              <div class="kpi-info">
+                <h3>Pending / Delayed</h3>
+                <p class="kpi-value text-amber-500" id="csPendingDelayed">3</p>
+                <span class="kpi-trend down"><i data-lucide="clock"></i> Action required</span>
+              </div>
+              <div class="kpi-icon amber"><i data-lucide="alert-circle"></i></div>
+            </div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="chart-card" onclick="openChartInsight('csTrendChart', 'Payment Release Trend', 'Line', 'Cashier')">
+              <div class="chart-header">
+                <h3>Payment Release Trend</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="csTrendChart"></canvas>
+              </div>
+            </div>
+            
+            <div class="chart-card" onclick="openChartInsight('csStatusChart', 'Payment Status Distribution', 'Donut', 'Cashier')">
+              <div class="chart-header">
+                <h3>Payment Status Distribution</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="csStatusChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card" onclick="openChartInsight('csAmountChart', 'Payment Amount Trend', 'Bar', 'Cashier')">
+              <div class="chart-header">
+                <h3>Payment Amount Trend</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="csAmountChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card" onclick="openChartInsight('csMethodChart', 'Payment Method Distribution', 'Donut', 'Cashier')">
+              <div class="chart-header">
+                <h3>Payment Method Distribution</h3>
+                <span class="info-tooltip">Click to generate AI Analysis</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="csMethodChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary Table -->
+          <div class="table-card mt-6">
+            <div class="table-card-header">
+              <h3>Payment Records</h3>
+              <div class="table-actions">
+                <input type="text" id="cashierSearch" placeholder="Search Check/LDDAP No..." class="table-search">
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>LDDAP/Check No.</th>
+                    <th>Date Released</th>
+                    <th>Approved DV Date</th>
+                    <th>Signed Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="cashierTableBody">
+                  <!-- JS populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        </section>
+      </main>
+    </div>
+
+    <?!= include('components'); ?>
+    <!-- Scripts -->
+    <?!= include('javascript'); ?>
+  </body>
+</html>
